@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -45,6 +44,10 @@ export default {
           800: '#4b5373',
           900: '#3f4661',
           950: '#272c3e',
+        },
+        brand: {
+          dark: '#6a040f',
+          accent: '#f4d35e',
         },
         primary: {
           DEFAULT: 'hsl(var(--primary))',

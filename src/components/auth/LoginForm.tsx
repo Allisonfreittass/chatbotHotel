@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -16,6 +15,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from "@/hooks/use-auth";
+import { loginUser } from "@/services/api";
 
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 
@@ -51,34 +51,22 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onRegisterClick }
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      // Verificar se o usuário existe no localStorage
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find((u: any) => u.email === values.email);
-      
-      if (!user) {
-        throw new Error("Usuário não encontrado");
-      }
-      
-      // Verificar se a senha está correta
-      if (user.password !== values.password) {
-        throw new Error("Senha incorreta");
-      }
-      
-      // Login bem-sucedido
-      login(user.email, user.name);
-      
+      const result = await loginUser(values.email, values.password);
+      localStorage.setItem('authToken', result.token);
+      login(result.user);
+
       toast({
         title: "Login realizado!",
         description: "Você foi autenticado com sucesso.",
       });
-      
+
       if (onLoginSuccess) {
         onLoginSuccess();
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
-        description: error instanceof Error ? error.message : "Verifique suas credenciais e tente novamente.",
+        description: error?.message || "Verifique suas credenciais e tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -89,10 +77,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onRegisterClick }
   return (
     <div className="space-y-6 p-1">
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-semibold text-hotel-800 dark:text-hotel-200">
+        <h2 className="text-2xl font-semibold text-brand-dark dark:text-brand-accent">
           Entrar na sua conta
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           Digite seu e-mail e senha para acessar sua conta
         </p>
       </div>
@@ -104,11 +92,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onRegisterClick }
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>E-mail</FormLabel>
+                <FormLabel className="text-brand-dark dark:text-brand-accent">E-mail</FormLabel>
                 <FormControl>
-                  <Input placeholder="seu@email.com" {...field} disabled={isLoading} />
+                  <Input placeholder="seu@email.com" {...field} disabled={isLoading} className="border-brand-accent/30 focus:ring-brand-accent dark:bg-gray-800 dark:text-white" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
@@ -118,7 +106,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onRegisterClick }
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Senha</FormLabel>
+                <FormLabel className="text-brand-dark dark:text-brand-accent">Senha</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input 
@@ -126,33 +114,34 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, onRegisterClick }
                       placeholder="Sua senha" 
                       {...field} 
                       disabled={isLoading}
+                      className="border-brand-accent/30 focus:ring-brand-accent dark:bg-gray-800 dark:text-white"
                     />
                     <button 
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-300"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
           
-          <Button type="submit" className="w-full bg-hotel-800 hover:bg-hotel-700 text-white" disabled={isLoading}>
+          <Button type="submit" className="w-full bg-brand-dark hover:bg-brand-dark/90 text-white" disabled={isLoading}>
             {isLoading ? "Entrando..." : "Entrar"}
           </Button>
         </form>
       </Form>
       
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           Ainda não tem uma conta?{" "}
           <button
             onClick={onRegisterClick}
-            className="text-hotel-800 dark:text-hotel-200 hover:underline font-medium"
+            className="text-brand-dark dark:text-brand-accent hover:underline font-medium"
             type="button"
           >
             Criar conta

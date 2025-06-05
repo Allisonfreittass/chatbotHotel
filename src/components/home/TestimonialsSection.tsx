@@ -1,54 +1,49 @@
-
-import React, { useState } from 'react';
-import { Star, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, ChevronLeft, ChevronRight, MessageCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import { format } from 'date-fns';
+import { Card, CardContent } from '@/components/ui/card';
+import { createReview, fetchReviews } from '@/services/api';
 
 interface TestimonialProps {
+  _id: string;
   quote: string;
   author: string;
-  location: string;
+  location?: string;
   rating: number;
-  image: string;
+  user?: {
+    username: string;
+    email: string;
+  };
+  createdAt: string;
+  image?: string;
 }
 
-const testimonials: TestimonialProps[] = [
-  {
-    quote: "Uma experiência inesquecível! O hotel superou todas as nossas expectativas, desde o atendimento impecável até a qualidade das acomodações. Definitivamente voltaremos.",
-    author: "Carlos Oliveira",
-    location: "São Paulo, Brasil",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
-  },
-  {
-    quote: "A atenção aos detalhes é impressionante! Desde o momento do check-in até nossa saída, nos sentimos verdadeiramente especiais. O café da manhã é excepcional.",
-    author: "Ana Martins",
-    location: "Rio de Janeiro, Brasil",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=388&q=80"
-  },
-  {
-    quote: "As instalações do spa são de outro mundo! Tivemos momentos de puro relaxamento, e a equipe atendeu a todas as nossas necessidades com profissionalismo e simpatia.",
-    author: "Paulo Mendes",
-    location: "Belo Horizonte, Brasil",
-    rating: 4,
-    image: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80"
-  },
-];
-
-const ReviewForm = ({ onClose }: { onClose: () => void }) => {
+const ReviewForm = ({ onClose, onReviewSubmitted }: { onClose: () => void; onReviewSubmitted: () => void }) => {
   const [review, setReview] = useState('');
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
   const [rating, setRating] = useState(5);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const { user, isLoggedIn } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      setName(user.username || '');
+    }
+  }, [isLoggedIn, user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!review || !name) {
+    if (!review.trim() || !name.trim()) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha seu nome e sua avaliação.",
@@ -56,18 +51,54 @@ const ReviewForm = ({ onClose }: { onClose: () => void }) => {
       });
       return;
     }
-    
-    // In a real application, this would send the review to a backend
-    toast({
-      title: "Avaliação enviada!",
-      description: "Obrigado por compartilhar sua experiência conosco.",
-    });
-    
-    onClose();
+
+    setIsLoading(true);
+
+    try {
+      const newReviewData = {
+        author: name,
+        location: location,
+        quote: review,
+        rating: rating,
+      };
+
+      await createReview(newReviewData);
+
+      toast({
+        title: "Avaliação enviada!",
+        description: "Obrigado por compartilhar sua experiência conosco. Sua avaliação aparecerá em breve.",
+      });
+      
+      onReviewSubmitted();
+      onClose();
+    } catch (error: any) {
+      console.error('Erro ao enviar avaliação:', error);
+      toast({
+        title: "Erro ao enviar avaliação",
+        description: error.message || "Não foi possível enviar sua avaliação. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {!isLoggedIn && (
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium mb-1">Seu Nome*</label>
+          <input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            required
+            disabled={isLoading}
+          />
+        </div>
+      )}
+      
       <div>
         <label htmlFor="rating" className="block text-sm font-medium mb-1">Avaliação</label>
         <div className="flex space-x-1">
@@ -77,6 +108,7 @@ const ReviewForm = ({ onClose }: { onClose: () => void }) => {
               type="button"
               onClick={() => setRating(star)}
               className="focus:outline-none"
+              disabled={isLoading}
             >
               <Star 
                 size={24} 
@@ -88,17 +120,6 @@ const ReviewForm = ({ onClose }: { onClose: () => void }) => {
       </div>
       
       <div>
-        <label htmlFor="name" className="block text-sm font-medium mb-1">Seu Nome*</label>
-        <input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-          required
-        />
-      </div>
-      
-      <div>
         <label htmlFor="location" className="block text-sm font-medium mb-1">Localização</label>
         <input
           id="location"
@@ -106,6 +127,7 @@ const ReviewForm = ({ onClose }: { onClose: () => void }) => {
           onChange={(e) => setLocation(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md"
           placeholder="Cidade, País"
+          disabled={isLoading}
         />
       </div>
       
@@ -118,31 +140,59 @@ const ReviewForm = ({ onClose }: { onClose: () => void }) => {
           className="w-full"
           rows={5}
           required
+          disabled={isLoading}
         />
       </div>
       
       <div className="flex justify-end space-x-2 pt-2">
-        <Button variant="outline" type="button" onClick={onClose}>Cancelar</Button>
-        <Button type="submit">Enviar Avaliação</Button>
+        <Button variant="outline" type="button" onClick={onClose} disabled={isLoading}>Cancelar</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          Enviar Avaliação
+        </Button>
       </div>
     </form>
   );
 };
 
 const TestimonialsSection: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [reviews, setReviews] = useState<TestimonialProps[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
-    );
+  const loadReviews = async () => {
+    setLoadingReviews(true);
+    try {
+      const data = await fetchReviews();
+      const formattedReviews: TestimonialProps[] = data.map((review: any) => ({
+        _id: review._id,
+        quote: review.quote,
+        author: review.author || review.user?.username || 'Anônimo',
+        location: review.location,
+        rating: review.rating,
+        user: review.user,
+        createdAt: review.createdAt,
+        image: review.image,
+      }));
+      setReviews(formattedReviews);
+    } catch (error) {
+      console.error('Erro ao buscar avaliações:', error);
+      toast({
+        title: "Erro ao carregar avaliações",
+        description: "Não foi possível carregar as avaliações no momento.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingReviews(false);
+    }
   };
 
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
-    );
+  useEffect(() => {
+    loadReviews();
+  }, []);
+
+  const handleReviewSubmitted = () => {
+    loadReviews();
   };
 
   return (
@@ -185,87 +235,53 @@ const TestimonialsSection: React.FC = () => {
                   Conte-nos como foi sua estadia no Hotel Vitória. Sua opinião é muito importante para nós!
                 </DialogDescription>
               </DialogHeader>
-              <ReviewForm onClose={() => setIsReviewOpen(false)} />
+              <ReviewForm onClose={() => setIsReviewOpen(false)} onReviewSubmitted={handleReviewSubmitted} />
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className="relative">
-          <div 
-            className="transition-all duration-500 ease-in-out"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            <div className="flex">
-              {testimonials.map((testimonial, index) => (
-                <div 
-                  key={index} 
-                  className="w-full flex-shrink-0 px-4"
-                >
-                  <div className="bg-hotel-900/30 backdrop-blur-sm p-8 rounded-xl border border-white/10 flex flex-col md:flex-row items-center gap-8 animate-fade-up opacity-0">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-hotel-400/20">
-                      <img 
-                        src={testimonial.image} 
-                        alt={testimonial.author}
-                        className="w-full h-full object-cover"
+        {loadingReviews ? (
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-hotel-800 dark:text-hotel-200 mx-auto" />
+            <p className="text-hotel-600 dark:text-hotel-400 mt-2">Carregando avaliações...</p>
+          </div>
+        ) : reviews.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {reviews.map((testimonial) => (
+              <Card key={testimonial._id} className="bg-hotel-900/30 backdrop-blur-sm p-8 rounded-xl border border-white/10 flex flex-col md:flex-row items-center gap-8 animate-fade-up opacity-0">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-hotel-400/20">
+                  <img 
+                    src={testimonial.image} 
+                    alt={testimonial.author}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="flex mb-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        size={18} 
+                        className={i < testimonial.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-400"} 
                       />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex mb-3">
-                        {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            size={18} 
-                            className={i < testimonial.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-400"} 
-                          />
-                        ))}
-                      </div>
-                      <blockquote className="text-lg mb-4 italic">
-                        "{testimonial.quote}"
-                      </blockquote>
-                      <div>
-                        <p className="font-semibold">{testimonial.author}</p>
-                        <p className="text-hotel-300 text-sm">{testimonial.location}</p>
-                      </div>
-                    </div>
+                    ))}
+                  </div>
+                  <blockquote className="text-lg mb-4 italic">
+                    "{testimonial.quote}"
+                  </blockquote>
+                  <div>
+                    <p className="font-semibold">{testimonial.author}</p>
+                    <p className="text-hotel-300 text-sm">{testimonial.location}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigation arrows */}
-          <button 
-            onClick={goToPrevious}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full -ml-4 backdrop-blur-sm transition-colors"
-            aria-label="Previous testimonial"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button 
-            onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full -mr-4 backdrop-blur-sm transition-colors"
-            aria-label="Next testimonial"
-          >
-            <ChevronRight size={20} />
-          </button>
-
-          {/* Dots indicator */}
-          <div className="flex justify-center mt-8 space-x-2">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all duration-300",
-                  index === currentIndex 
-                    ? "bg-white w-6" 
-                    : "bg-white/30 hover:bg-white/50"
-                )}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
+              </Card>
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="text-center text-gray-600 dark:text-hotel-400">
+            <p>Ainda não há avaliações. Seja o primeiro a compartilhar sua experiência!</p>
+          </div>
+        )}
       </div>
     </section>
   );

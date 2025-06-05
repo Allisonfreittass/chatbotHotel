@@ -14,6 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// Importar o logo (assumindo que está em public/logo.png)
+import logo from '../home/images/logo.jpg'; 
+
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -89,12 +92,12 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <Link 
             to="/" 
-            className="text-2xl font-semibold tracking-tight transition-transform hover:scale-[1.02] relative"
+            className="text-2xl font-semibold tracking-tight transition-transform hover:scale-[1.02] relative flex items-center"
           >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-hotel-800 to-hotel-600 dark:from-hotel-200 dark:to-hotel-400">
+            <img src={logo} alt="Logo do Hotel Vitória" className="h-8 w-auto mr-2" />
+            <span className="text-gray-900 dark:text-white">
               Hotel Vitória Palace
             </span>
-            <span className="absolute -bottom-1 left-0 w-full h-px bg-gradient-to-r from-transparent via-hotel-400/40 to-transparent"></span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -110,21 +113,23 @@ const Header = () => {
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
+                    <Button variant="outline" className="flex items-center gap-2 border-brand-accent text-brand-dark hover:bg-brand-accent/10">
                       <UserAvatar />
                       <span className="hidden sm:inline-block">
-                        {user?.name || user?.email.split('@')[0]}
+                        {user?.username || user?.email?.split('@')[0]}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Minhas Reservas</DropdownMenuItem>
+                    {/* <Link to="/reservas">
+                      <DropdownMenuItem>Minhas Reservas</DropdownMenuItem>
+                    </Link> */}
                     <Link to="/myAccount">
                       <DropdownMenuItem>Minha Conta</DropdownMenuItem>
                     </Link>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut className="mr-2 h-4 w-4" />
+                      <LogOut className="mr-2 h-4 w-4 text-brand-dark" />
                       <span>Sair</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -136,7 +141,7 @@ const Header = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => setIsAuthDialogOpen(true)}
-                  className="text-hotel-800 dark:text-hotel-200"
+                  className="text-brand-dark border-brand-accent hover:bg-brand-accent/10"
                 >
                   Entrar
                 </Button>
@@ -176,7 +181,7 @@ const Header = () => {
           <div className="flex flex-col items-center space-y-4 animate-fade-up opacity-0 pt-6">
             <button 
               onClick={toggleTheme} 
-              className="p-3 rounded-full bg-secondary/80 hover:bg-secondary transition-colors"
+              className="p-3 rounded-full bg-brand-dark/80 hover:bg-brand-dark text-white transition-colors"
               aria-label="Toggle theme"
             >
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
@@ -193,30 +198,20 @@ const Header = () => {
                       onError={() => setProfilePic(null)}
                     />
                   ) : (
-                    <UserCircle size={40} className="text-hotel-800 dark:text-hotel-200" />
+                    <UserCircle size={40} className="text-brand-dark" />
                   )}
-                  <p className="text-hotel-800 dark:text-hotel-200">
-                    {user?.name || user?.email.split('@')[0]}
+                  <p className="text-brand-dark">
+                    Olá, {user?.username || user?.email?.split('@')[0]}!
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
+                <Link to="/reservas" className="text-2xl font-semibold hover:text-brand-accent transition-colors">Minhas Reservas</Link>
+                <Link to="/myAccount" className="text-2xl font-semibold hover:text-brand-accent transition-colors">Minha Conta</Link>
+                <button 
                   onClick={handleLogout}
-                  className="flex items-center gap-2 w-full"
+                  className="text-2xl font-semibold text-red-500 hover:text-red-700 transition-colors"
                 >
-                  <LogOut size={16} />
-                  <span>Sair</span>
-                </Button>
-                <ReservationDialog 
-                  trigger={
-                    <Button 
-                      className="bg-hotel-800 hover:bg-hotel-700 text-white w-full"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Reservar Agora
-                    </Button>
-                  }
-                />
+                  Sair
+                </button>
               </>
             ) : (
               <>
@@ -226,31 +221,20 @@ const Header = () => {
                     setIsAuthDialogOpen(true);
                     setIsOpen(false);
                   }}
-                  className="w-full"
+                  className="text-brand-dark border-brand-accent hover:bg-brand-accent/10 text-2xl font-semibold w-full"
                 >
-                  Entrar / Criar Conta
+                  Entrar
                 </Button>
-                <ReservationDialog 
-                  trigger={
-                    <Button 
-                      className="bg-hotel-800 hover:bg-hotel-700 text-white w-full"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      Reservar Agora
-                    </Button>
-                  }
-                  onBeforeReserve={() => {
-                    if (!isLoggedIn) {
-                      setIsAuthDialogOpen(true);
-                      setIsOpen(false);
-                      return false;
-                    }
-                    return true;
-                  }}
-                />
               </>
             )}
           </div>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="absolute top-4 right-4 p-2 rounded-md text-hotel-600 hover:text-hotel-800 dark:text-hotel-300 dark:hover:text-hotel-100"
+            aria-label="Close menu"
+          >
+            <X size={24} />
+          </button>
         </div>
       </div>
 

@@ -1,15 +1,17 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 
 interface User {
-  name?: string;
+  _id: string;
+  username: string;
   email: string;
   profilePic?: string; // Para armazenar a foto do perfil
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
-  login: (email: string, name?: string) => void;
+  login: (userData: User) => void;
   logout: () => void;
   updateUser: (updatedUser: User) => void; // Nova função para atualizar o usuário
 }
@@ -25,54 +27,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
     
     if (loggedIn) {
-      const email = localStorage.getItem('userEmail') || '';
-      const name = localStorage.getItem('userName');
-      const profilePic = localStorage.getItem('userProfilePic');
-      
-      // Verificar se o usuário realmente existe no sistema
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const userExists = users.some((u: any) => u.email === email);
-      
-      if (userExists) {
-        setUser({
-          email,
-          name: name || undefined,
-          profilePic: profilePic || undefined // Carregar a foto do perfil
-        });
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        setUser(JSON.parse(userStr));
         setIsLoggedIn(true);
-      } else {
-        // Se o usuário não existir mais, faça logout
-        logout();
       }
     }
   }, []);
 
-  const login = (email: string, name?: string) => {
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userEmail', email);
-    if (name) localStorage.setItem('userName', name);
-    
-    setUser({ email, name });
+  const login = (userData: User) => {
+    setUser(userData);
     setIsLoggedIn(true);
+    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('isLoggedIn', 'true');
   };
 
   const logout = () => {
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userProfilePic'); // Remover foto de perfil também
-    
+    localStorage.removeItem('user');
     setUser(null);
     setIsLoggedIn(false);
   };
 
   // Função para atualizar os dados do usuário
   const updateUser = (updatedUser: User) => {
-    localStorage.setItem('userEmail', updatedUser.email);
-    if (updatedUser.name) localStorage.setItem('userName', updatedUser.name);
-    if (updatedUser.profilePic) localStorage.setItem('userProfilePic', updatedUser.profilePic);
-
-    setUser(updatedUser); // Atualiza o estado do usuário
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
   return (

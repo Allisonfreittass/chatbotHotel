@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Utensils, Wifi, CarFront, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,14 +12,14 @@ interface FeatureProps {
 const Feature: React.FC<FeatureProps> = ({ icon, title, description, delay }) => {
   return (
     <div 
-      className="bg-white dark:bg-hotel-900 p-6 rounded-xl shadow-sm border border-hotel-100 dark:border-hotel-800 hover:shadow-md transition-all duration-300 group animate-fade-up opacity-0"
+      className="bg-white dark:bg-brand-dark p-6 rounded-xl shadow-sm border border-brand-accent/30 hover:shadow-md transition-all duration-300 group animate-fade-up opacity-0"
       style={{ animationDelay: `${delay * 0.1}s` }}
     >
-      <div className="w-12 h-12 bg-hotel-50 dark:bg-hotel-800 rounded-full flex items-center justify-center text-hotel-600 dark:text-hotel-300 mb-4 group-hover:bg-hotel-100 dark:group-hover:bg-hotel-700 transition-colors">
+      <div className="w-12 h-12 bg-brand-accent/20 dark:bg-brand-accent/30 rounded-full flex items-center justify-center text-brand-dark mb-4 group-hover:bg-brand-accent/30 dark:group-hover:bg-brand-accent/40 transition-colors">
         {icon}
       </div>
-      <h3 className="text-lg font-semibold mb-2 text-hotel-800 dark:text-hotel-200">{title}</h3>
-      <p className="text-hotel-600 dark:text-hotel-400">{description}</p>
+      <h3 className="text-lg font-semibold mb-2 text-brand-dark dark:text-white">{title}</h3>
+      <p className="text-gray-600 dark:text-gray-300">{description}</p>
     </div>
   );
 };
@@ -30,7 +29,7 @@ const FeaturesSection: React.FC = () => {
     { 
       icon: <Utensils size={24} />, 
       title: 'Café da Manhã', 
-      description: 'Buffet matinal completo com opções internacionais e especialidades locais das 6h às 10h.'
+      description: 'Buffet matinal completo com opções internacionais e especialidades locais das 6h às 09h.'
     },
     { 
       icon: <Wifi size={24} />, 
@@ -40,7 +39,7 @@ const FeaturesSection: React.FC = () => {
     { 
       icon: <CarFront size={24} />, 
       title: 'Estacionamento', 
-      description: 'Serviço de manobrista e estacionamento seguro para seu veículo.'
+      description: 'Estacionamento seguro para seu veículo.'
     },
     { 
       icon: <Clock size={24} />, 
@@ -50,13 +49,13 @@ const FeaturesSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-20 bg-hotel-50 dark:bg-gradient-to-b dark:from-hotel-950 dark:to-hotel-900">
+    <section className="py-20 bg-brand-dark dark:bg-brand-dark text-white">
       <div className="section-container">
         <div className="text-center mb-16 animate-fade-up opacity-0">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-hotel-800 dark:text-hotel-200">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
             Comodidades Exclusivas
           </h2>
-          <p className="text-hotel-600 dark:text-hotel-400 max-w-xl mx-auto">
+          <p className="text-brand-accent max-w-xl mx-auto">
             Cada aspecto do Hotel Vitória foi cuidadosamente pensado para proporcionar uma experiência excepcional aos nossos hóspedes.
           </p>
         </div>

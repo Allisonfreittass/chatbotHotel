@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -73,7 +72,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
   };
 
   const defaultTrigger = (
-    <Button className="bg-hotel-800 hover:bg-hotel-700 text-white">
+    <Button className="bg-brand-dark hover:bg-brand-dark/90 text-white">
       Reservar Agora
     </Button>
   );
@@ -84,10 +83,10 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
         {trigger || defaultTrigger}
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-[500px] overflow-y-auto max-h-[90vh]">
+      <DialogContent className="sm:max-w-[500px] overflow-y-auto max-h-[90vh] dark:bg-gray-800 dark:text-gray-200 border-brand-accent/30">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Faça sua reserva</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-2xl text-brand-dark dark:text-brand-accent">Faça sua reserva</DialogTitle>
+          <DialogDescription className="text-gray-600 dark:text-gray-300">
             Preencha os dados abaixo para reservar seu quarto no Hotel Vitória.
           </DialogDescription>
         </DialogHeader>
@@ -96,13 +95,13 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
           <div className="grid grid-cols-2 gap-4">
             {/* Check-in date */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Check-in</label>
+              <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Check-in</label>
               <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal border-brand-accent/30 dark:bg-gray-800 dark:text-white",
                       !checkIn && "text-muted-foreground"
                     )}
                   >
@@ -124,6 +123,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
                     }}
                     initialFocus
                     disabled={(date) => date < new Date()}
+                    className="dark:bg-gray-800 dark:text-white border-brand-accent/30"
                   />
                 </PopoverContent>
               </Popover>
@@ -131,13 +131,13 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
             
             {/* Check-out date */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Check-out</label>
+              <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Check-out</label>
               <Popover open={isCheckOutCalendarOpen} onOpenChange={setIsCheckOutCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal border-brand-accent/30 dark:bg-gray-800 dark:text-white",
                       !checkOut && "text-muted-foreground"
                     )}
                   >
@@ -159,6 +159,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
                     }}
                     initialFocus
                     disabled={(date) => !checkIn || date <= checkIn}
+                    className="dark:bg-gray-800 dark:text-white border-brand-accent/30"
                   />
                 </PopoverContent>
               </Popover>
@@ -167,12 +168,12 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
           
           {/* Room type */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Tipo de Quarto</label>
+            <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Tipo de Quarto</label>
             <Select value={roomType} onValueChange={setRoomType}>
-              <SelectTrigger>
+              <SelectTrigger className="border-brand-accent/30 dark:bg-gray-800 dark:text-white focus:ring-brand-accent">
                 <SelectValue placeholder="Selecione o tipo de quarto" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-gray-800 dark:text-white border-brand-accent/30">
                 <SelectItem value="solteiro">Solteiro (R$110)</SelectItem>
                 <SelectItem value="solteiro-ar">Solteiro com Ar Condicionado (R$150)</SelectItem>
                 <SelectItem value="casal">Casal (R$190)</SelectItem>
@@ -184,12 +185,12 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
           {/* Guests */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Adultos</label>
+              <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Adultos</label>
               <Select value={adults} onValueChange={setAdults}>
-                <SelectTrigger>
+                <SelectTrigger className="border-brand-accent/30 dark:bg-gray-800 dark:text-white focus:ring-brand-accent">
                   <SelectValue placeholder="Adultos" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-gray-800 dark:text-white border-brand-accent/30">
                   <SelectItem value="1">1 Adulto</SelectItem>
                   <SelectItem value="2">2 Adultos</SelectItem>
                 </SelectContent>
@@ -197,12 +198,12 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Crianças</label>
+              <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Crianças</label>
               <Select value={children} onValueChange={setChildren}>
-                <SelectTrigger>
+                <SelectTrigger className="border-brand-accent/30 dark:bg-gray-800 dark:text-white focus:ring-brand-accent">
                   <SelectValue placeholder="Crianças" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-gray-800 dark:text-white border-brand-accent/30">
                   <SelectItem value="0">0 Crianças</SelectItem>
                   <SelectItem value="1">1 Criança</SelectItem>
                   <SelectItem value="2">2 Crianças</SelectItem>
@@ -213,20 +214,20 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
           
           {/* Informações do usuário - Nome e Email são preenchidos automaticamente */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nome completo</label>
+            <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Nome completo</label>
             <div className="relative">
               <Input 
-                value={user?.name || ''} 
-                disabled
                 placeholder="Seu nome completo" 
-                className="bg-muted"
+                value={user?.username || ''} 
+                disabled 
+                className="pl-10 border-brand-accent/30 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed"
               />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Email</label>
               <div className="relative">
                 <Input 
                   type="email" 
@@ -240,7 +241,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Telefone</label>
+              <label className="text-sm font-medium text-brand-dark dark:text-brand-accent">Telefone</label>
               <div className="relative">
                 <Input 
                   type="tel" 
@@ -256,7 +257,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({ trigger, onBefore
           </div>
           
           <DialogFooter className="pt-2">
-            <Button type="submit" className="w-full bg-hotel-800 hover:bg-hotel-700 text-white">
+            <Button type="submit" className="w-full bg-brand-dark hover:bg-brand-dark/90 text-white">
               Enviar Solicitação de Reserva
             </Button>
           </DialogFooter>

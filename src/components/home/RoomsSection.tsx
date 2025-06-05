@@ -1,10 +1,13 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Users, Tv, Wifi, Bath, Wind } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReservationDialog from '../reservation/ReservationDialog';
 import RoomsDisplayDialog from '../rooms/RoomsDisplayDialog';
+
+// Importar imagens locais
+import solteiroDuploImage from './images/solteiro-duplo.jpeg';
+import casalImage from './images/casal.jpeg';
 
 interface RoomProps {
   image: string;
@@ -75,7 +78,7 @@ const RoomsSection: React.FC = () => {
   
   const rooms = [
     {
-      image: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+      image: solteiroDuploImage, // Usar imagem local
       title: "Solteiro",
       description: "Quarto confortável com cama de solteiro e banheiro privativo.",
       price: 110,
@@ -83,7 +86,7 @@ const RoomsSection: React.FC = () => {
       features: ["Wi-Fi", "TV", "Frigobar"]
     },
     {
-      image: "https://images.unsplash.com/photo-1631049035182-249067d7618e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+      image: solteiroDuploImage, // Usar imagem local
       title: "Solteiro com Ar Condicionado",
       description: "Quarto individual com ar-condicionado e janela com vista para o jardim.",
       price: 150,
@@ -91,7 +94,7 @@ const RoomsSection: React.FC = () => {
       features: ["Wi-Fi", "TV", "Frigobar", "Ar-condicionado"]
     },
     {
-      image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1174&q=80",
+      image: casalImage, // Usar imagem local
       title: "Casal",
       description: "Quarto espaçoso com cama de casal e amenidades para um casal.",
       price: 190,
@@ -99,7 +102,7 @@ const RoomsSection: React.FC = () => {
       features: ["Wi-Fi", "TV", "Frigobar", "Chuveiro duplo"]
     },
     {
-      image: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+      image: casalImage, // Usar imagem local
       title: "Casal com Ar Condicionado",
       description: "Quarto de casal premium com ar-condicionado e vista panorâmica.",
       price: 220,

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -19,6 +18,7 @@ import FormHeader from "./FormHeader";
 import FormFooter from "./FormFooter";
 import PasswordInput from "./PasswordInput";
 import PasswordRequirements from "./PasswordRequirements";
+import { createUser, loginUser } from "@/services/api";
 
 // Define a strong password regex: at least 8 characters, one letter, one number, one special character
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
@@ -62,39 +62,30 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onLoginC
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      // Verificar se já existe um usuário com este e-mail
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
-      if (users.some((user: any) => user.email === values.email)) {
-        throw new Error("Este e-mail já está em uso");
-      }
-      
-      // Adicionar novo usuário
-      const newUser = {
-        name: values.name,
+      // Cria o usuário no backend
+      await createUser({
+        username: values.name,
         email: values.email,
         password: values.password,
-        createdAt: new Date().toISOString()
-      };
-      
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      // Login automático após registro
-      login(values.email, values.name);
-      
+      });
+
+      // Login automático após registro (usando o backend)
+      const result = await loginUser(values.email, values.password);
+      localStorage.setItem('authToken', result.token); // Armazenar authToken, não apenas token
+      login(result.user);
+
       toast({
         title: "Conta criada!",
         description: "Sua conta foi criada com sucesso e você já está logado.",
       });
-      
+
       if (onRegisterSuccess) {
         onRegisterSuccess();
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erro ao criar conta",
-        description: error instanceof Error ? error.message : "Tente novamente mais tarde.",
+        description: error?.message || "Tente novamente mais tarde.",
         variant: "destructive",
       });
     } finally {
@@ -107,6 +98,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onLoginC
       <FormHeader 
         title="Criar uma conta"
         description="Preencha os dados abaixo para criar sua conta"
+        titleColor="text-brand-dark dark:text-brand-accent"
+        descriptionColor="text-gray-600 dark:text-gray-300"
       />
 
       <Form {...form}>
@@ -116,11 +109,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onLoginC
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome completo</FormLabel>
+                <FormLabel className="text-brand-dark dark:text-brand-accent">Nome completo</FormLabel>
                 <FormControl>
-                  <Input placeholder="Seu nome completo" {...field} disabled={isLoading} />
+                  <Input placeholder="Seu nome completo" {...field} disabled={isLoading} className="border-brand-accent/30 focus:ring-brand-accent dark:bg-gray-800 dark:text-white" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
@@ -130,11 +123,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onLoginC
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>E-mail</FormLabel>
+                <FormLabel className="text-brand-dark dark:text-brand-accent">E-mail</FormLabel>
                 <FormControl>
-                  <Input placeholder="seu@email.com" {...field} disabled={isLoading} />
+                  <Input placeholder="seu@email.com" {...field} disabled={isLoading} className="border-brand-accent/30 focus:ring-brand-accent dark:bg-gray-800 dark:text-white" />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
@@ -144,14 +137,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onLoginC
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Senha</FormLabel>
+                <FormLabel className="text-brand-dark dark:text-brand-accent">Senha</FormLabel>
                 <PasswordInput 
                   field={field} 
                   placeholder="Crie uma senha" 
                   disabled={isLoading} 
+                  inputClassName="border-brand-accent/30 focus:ring-brand-accent dark:bg-gray-800 dark:text-white"
+                  iconClassName="text-gray-600 dark:text-gray-300"
                 />
-                <PasswordRequirements />
-                <FormMessage />
+                <PasswordRequirements textColor="text-brand-dark dark:text-brand-accent" />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
@@ -161,18 +156,20 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onLoginC
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirmar senha</FormLabel>
+                <FormLabel className="text-brand-dark dark:text-brand-accent">Confirmar senha</FormLabel>
                 <PasswordInput 
                   field={field} 
                   placeholder="Confirme sua senha" 
                   disabled={isLoading} 
+                  inputClassName="border-brand-accent/30 focus:ring-brand-accent dark:bg-gray-800 dark:text-white"
+                  iconClassName="text-gray-600 dark:text-gray-300"
                 />
-                <FormMessage />
+                <FormMessage className="text-red-500" />
               </FormItem>
             )}
           />
           
-          <Button type="submit" className="w-full bg-hotel-800 hover:bg-hotel-700 text-white" disabled={isLoading}>
+          <Button type="submit" className="w-full bg-brand-dark hover:bg-brand-dark/90 text-white" disabled={isLoading}>
             {isLoading ? "Criando conta..." : "Criar conta"}
           </Button>
         </form>
@@ -182,6 +179,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegisterSuccess, onLoginC
         message="Já tem uma conta?"
         linkText="Fazer login"
         onLinkClick={onLoginClick}
+        messageColor="text-gray-600 dark:text-gray-300"
+        linkColor="text-brand-dark dark:text-brand-accent"
       />
     </div>
   );

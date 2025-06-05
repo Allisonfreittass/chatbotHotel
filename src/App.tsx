@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import UserAccount from "./pages/myAccount";  // Página da conta do usuário
+import Reservas from "./pages/reservas";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/galeria" element={<Index />} />
             <Route path="/ofertas" element={<Index />} />
             <Route path="/contato" element={<Index />} />
+            <Route path="/reservas" element={<Reservas />} />
             {/* Rota para página não encontrada */}
             <Route path="*" element={<NotFound />} />
           </Routes>
